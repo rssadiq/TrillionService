@@ -22,14 +22,10 @@ import java.util.*;
 
 
 public class LocationModule extends Module implements LocationListener, GpsStatus.Listener {
-//    noOfSatUsed=0,noOfSatUnused=0;
-//    float =0;
-//    Boolean satellitesChanged =false, unusedSatellitesChanged =false, unusedSNRChanged
-//    private UsageModule usageModule= new UsageModule(context);
-//    usageModule.addSubscriber(this);
+
     private float cpuUsage;
     private int numCores;
-    private double ram,ratioOfUsedUnusedSat=0.0;
+    private double ram, ratioOfUsedUnusedSat = 0.0;
     private static final int CORE_LOAD_WAIT_TIME = 200; // Wait time between cpu core load reads and number of rolling samples to store
 
     private static final String MODULE_NAME = "Location_Module", TAG = "LOCATION MODULE", MOCK_PROVIDER_NAME = "mock";
@@ -37,29 +33,29 @@ public class LocationModule extends Module implements LocationListener, GpsStatu
     private static final long TIME_BETWEEN_UPDATES = 1000; // Minimum time between location updates
     private static final float DISTANCE_CHANGE_BETWEEN_UPDATES = 5; // Minimum distance change between updates.
     // "Time of Log,Provider,Latitude,Latitude Avg,Longitude,Longitude Avg,Accuracy,Accuracy Avg,Time to First Fix (milliseconds),Satellite IDs (PRNs),SNR,Unused SatPRNs,Unused SatSNRs,Time of Reading SNR,MinSNR,MaxSNR,SNRrange,AvgSNR,StdDevSNR,Epoch Time,Time Date"; //
-    private static final String LOG_FILE_HEADER ="Time of Log,Provider,Location Reading Time,Time to First Location Fix (milliseconds),"
-+ "Trustworthiness Score (Probability),"
+    private static final String LOG_FILE_HEADER = "Time of Log,Provider,Location Reading Time,Time to First Location Fix (milliseconds),"
+            + "Trustworthiness Score (Probability),"
             + "CPU Usage,"
             + "Latitude,"
-+ "Longitude,"
-+ "Location Changed,"
-+ "Accuracy,"
-+ "Accuracy Changed,"
-+ "No of Satellites Used,"
-+ "No of Unused Satellites,"
-+ "Ratio of Used and Unused Satellites,"
-+ "Satellite IDs (PRNs),"
-+ "Satellites Changed,"
-+ "SNR,"
-+ "SNR Changed,"
-+ "Unused SatPRNs,"
-+ "Unused SatPRNs Changed,"
-+ "Unused SatSNRs,"
-+ "unusedSNRChanged,"
-+ "Time of Reading SNR,MinSNR,MaxSNR,SNRrange,AvgSNR,StdDevSNR";
-//"Time of Log,Provider,Epoch Time,Time Date,CPU Usage,Latitude,Longitude,Accuracy,Time to First Fix (milliseconds),Satellite IDs (PRNs),SNR,Unused SatPRNs,Unused SatSNRs,Time of Reading SNR,MinSNR,MaxSNR,SNRrange,AvgSNR,StdDevSNR";
+            + "Longitude,"
+            + "Location Changed,"
+            + "Accuracy,"
+            + "Accuracy Changed,"
+//+ "No of Satellites Used,"
+//+ "No of Unused Satellites,"
+//+ "Ratio of Used and Unused Satellites,"
+//+ "Satellite IDs (PRNs),"
+//+ "Satellites Changed,"
+            + "SNR,"
+            + "SNR Changed,";
+//            + "Unused SatPRNs,"
+//            + "Unused SatPRNs Changed,"
+//            + "Unused SatSNRs,"
+//            + "unusedSNRChanged,"
+//+ "Time of Reading SNR,MinSNR,MaxSNR,SNRrange,AvgSNR,StdDevSNR";
 
-    //region POSSIBLE UNNECESSARY CODE FOR CURRENT USE - 1
+
+    //region UNNECESSARY CODE FOR CURRENT USE - 1
 
     private static boolean useMockLocations = false; // Debugging and mock locations flags
     private static int NUM_OF_SAMPLES = 10;
@@ -103,14 +99,14 @@ public class LocationModule extends Module implements LocationListener, GpsStatu
 
     //endregion
 
-    private int mockLocCount = 0, time2firstFix = 0, noOfSatUsed=0, noOfSatUnused=0;
+    private int mockLocCount = 0, time2firstFix = 0, noOfSatUsed = 0, noOfSatUnused = 0;
     private LocationManager locationManager = null;
     private Location location;
     private SimpleDateFormat simpleDateFormat; // Used to format time of location fix
     private long timeEpoch = 0, timeOfLastFix = 0, timeSinceAccuracyChanged = 0, timeSinceSNRsChanged = 0;
     private String provider = "", time = "", satPrn = "", satSnr = "", snrTimes = "", unusedSatPRNs = "", unusedSatSNRs = "";
     private double latitude = 0, longitude = 0, latitudeAvg = 0, longitudeAvg = 0, accuracyAvg = 0;
-    private float accuracy = 0, lastAccuracy=0, minSNR = 0, maxSNR = 0, rangeSNR = 0, avgSNR = 0, stdDevSNR = 0;
+    private float accuracy = 0, lastAccuracy = 0, minSNR = 0, maxSNR = 0, rangeSNR = 0, avgSNR = 0, stdDevSNR = 0;
     private double[] latitudeSamples = new double[NUM_OF_SAMPLES], longitudeSamples = new double[NUM_OF_SAMPLES];
     private float[] accuracySamples = new float[NUM_OF_SAMPLES];
 
@@ -244,6 +240,7 @@ public class LocationModule extends Module implements LocationListener, GpsStatu
         }
     }
 
+    //region UNUSED CODE
     private Location getMockLocation() {
         Location mockLoc = new Location(MOCK_PROVIDER_NAME);
         mockLoc.setLatitude(MOCK_LOCATION_LATITUDE[mockLocCount]);
@@ -256,72 +253,26 @@ public class LocationModule extends Module implements LocationListener, GpsStatu
         }
         return mockLoc;
     }
-
-    //region UNNECESSARY FOR CURRENT USE - -2
-
-//     @Override
-//    protected void collectConstSample() {}
-    @Override
-    protected void collectConstSample() {
-        String stats = "Minimum Time:," + TIME_BETWEEN_UPDATES + " ms" +
-                ",Distance Changed:," + DISTANCE_CHANGE_BETWEEN_UPDATES + " m" +
-                ",Averages From:," + NUM_OF_SAMPLES + " Samples";
-        logger.log(stats, false);
-        logger.log(LOG_FILE_HEADER, false);
-        if (DEBUGGING) {
-            publishModuleUpdate(stats);
-            Log.d(TAG, stats);
-        }
-    }
     //endregion
 
-    //region collectSample VERSION-1
-//        @Override
-//    protected void collectSample() {
+         @Override
+    protected void collectConstSample() {
+             logger.log(LOG_FILE_HEADER, false);
+         }
 //
-//        getLocationInfo();
-//        latitudeSamples = ModuleUtilLib.addSample(latitudeSamples, latitude, sampleCount);
-//        //latitudeAvg = ModuleUtilLib.calcAverage(latitudeSamples, sampleCount);
-//        longitudeSamples = ModuleUtilLib.addSample(longitudeSamples, longitude, sampleCount);
-//        //longitudeAvg = ModuleUtilLib.calcAverage(longitudeSamples, sampleCount);
-//        accuracySamples = ModuleUtilLib.addSample(accuracySamples, accuracy, sampleCount);
-//        //accuracyAvg = ModuleUtilLib.calcAverage(accuracySamples, sampleCount);
-//        String stats = provider + "," +
-//                Long.toString(timeEpoch) + "," +
-//                time + "," +
-//                Double.toString(latitude) + "," +
-//                //Double.toString(latitudeAvg) + "," +
-//                Double.toString(longitude) + "," +
-//                //Double.toString(longitudeAvg) + "," +
-//                Float.toString(accuracy) + "," +
-//                //Double.toString(accuracyAvg) + "," +
-//                Integer.toString(time2firstFix) + "," +
-//                satPrn + "," +
-//                satSnr + "," +
-//                unusedSatPRNs + "," +
-//                unusedSatSNRs + "," +
-//                snrTimes + "," +
-//                minSNR + "," +
-//                maxSNR + "," +
-//                rangeSNR + "," +
-//                avgSNR + "," +
-//                stdDevSNR;
-//
-//        logger.log(stats, true);
+//    @Override
+//    protected void collectConstSample() {
+//        String stats = "Minimum Time:," + TIME_BETWEEN_UPDATES + " ms" +
+//                ",Distance Changed:," + DISTANCE_CHANGE_BETWEEN_UPDATES + " m" +
+//                ",Averages From:," + NUM_OF_SAMPLES + " Samples";
+//        logger.log(stats, false);
+//        logger.log(LOG_FILE_HEADER, false);
 //        if (DEBUGGING) {
 //            publishModuleUpdate(stats);
-//            Log.d(TAG, "Provider: " + provider +
-//                    ", Latitude: " + Double.toString(latitude) +
-//                    ", Latitude Average: " + Double.toString(latitudeAvg) +
-//                    ", Longitude: " + Double.toString(longitude) +
-//                    ", Longitude Average: " + Double.toString(longitudeAvg) +
-//                    ", Accuracy: " + Float.toString(accuracy) +
-//                    ", Accuracy Average: " + Double.toString(accuracyAvg) +
-//                    ", Epoch Time of Fix: " + timeEpoch +
-//                    ", Time of Fix: " + time);
+//            Log.d(TAG, stats);
 //        }
 //    }
-    //endregion
+
 
     //region collectSample VERSION-2
     @Override
@@ -330,38 +281,11 @@ public class LocationModule extends Module implements LocationListener, GpsStatu
 
         numCores = UsageModule.getNumCores();
         cpuUsage = UsageModule.getCpuUsage(numCores);
-        dataProcessor.dataSample(cpuUsage,latitude,longitude,accuracy,noOfSatUsed,satPrn,satSnr,unusedSatPRNs,unusedSatSNRs);
+        dataProcessor.dataSample(cpuUsage, latitude, longitude, accuracy, noOfSatUsed, satPrn, satSnr, unusedSatPRNs, unusedSatSNRs);
 
-        ratioOfUsedUnusedSat = (double) noOfSatUsed / noOfSatUnused;
+//        ratioOfUsedUnusedSat = (double) noOfSatUsed / noOfSatUnused;
 
-        //ram = getMemoryUsed(context);
-//        latitudeSamples = ModuleUtilLib.addSample(latitudeSamples, latitude, sampleCount);
-//        //latitudeAvg = ModuleUtilLib.calcAverage(latitudeSamples, sampleCount);
-//        longitudeSamples = ModuleUtilLib.addSample(longitudeSamples, longitude, sampleCount);
-//        //longitudeAvg = ModuleUtilLib.calcAverage(longitudeSamples, sampleCount);
-//        accuracySamples = ModuleUtilLib.addSample(accuracySamples, accuracy, sampleCount);
-//        //accuracyAvg = ModuleUtilLib.calcAverage(accuracySamples, sampleCount);
-//
 
-// "Time of Log,Provider,Epoch Time,Date and Time,Time to First Location Fix (milliseconds)," 
-// + "CPU Usage,"
-// + "Latitude,"
-// + "Longitude,"
-// + "Location Changed,"
-// + "Accuracy,"
-// + "Accuracy Changed,"
-// + "No of Satellites Used,"
-// + "No of Unused Satellites,"
-// + "Ratio of Used and Unused Satellites,"
-// + "Satellite IDs (PRNs),"
-// + "Satellites Changed,"
-// + "SNR,"
-// + "SNR Changed,"
-// + "Unused SatPRNs,"
-// + "Unused SatPRNs Changed,"
-// + "Unused SatSNRs,"
-// + "unusedSNRChanged,"
-// + "Time of Reading SNR,MinSNR,MaxSNR,SNRrange,AvgSNR,StdDevSNR";
         String stats = provider + "," +
                 time + "," +
                 Integer.toString(time2firstFix) + "," +
@@ -369,48 +293,28 @@ public class LocationModule extends Module implements LocationListener, GpsStatu
                 Float.toString(cpuUsage) + "," +
                 Double.toString(latitude) + "," +
                 Double.toString(longitude) + "," +
-                Integer.toString(dataProcessor.locationChanged? 1:0) + "," +
+                Integer.toString(dataProcessor.locationChanged ? 1 : 0) + "," +
                 Float.toString(accuracy) + "," +
                 Integer.toString(dataProcessor.accuracyChanged ? 1 : 0) + "," +
-				Integer.toString(noOfSatUsed) + "," +
-				Integer.toString(noOfSatUnused) + "," +
-				Double.toString(ratioOfUsedUnusedSat) + "," +
-				satPrn + "," +
-                Integer.toString(dataProcessor.satPRNsChanged? 1: 0) + "," +
+//                Integer.toString(noOfSatUsed) + "," +
+//                Integer.toString(noOfSatUnused) + "," +
+//                Double.toString(ratioOfUsedUnusedSat) + "," +
+//                satPrn + "," +
+//                Integer.toString(dataProcessor.satPRNsChanged ? 1 : 0) + "," +
                 satSnr + "," +
-				Integer.toString(dataProcessor.satSNRsChanged? 1 : 0) + "," +
-                unusedSatPRNs + "," +
-				Integer.toString(dataProcessor.unusedSatPRNsChanged? 1 : 0) + "," +
-                unusedSatSNRs + "," +
-                Integer.toString(dataProcessor.unusedSatSNRsChanged? 1 : 0) + "," +
-                snrTimes + "," +
-                minSNR + "," +
-                maxSNR + "," +
-                rangeSNR + "," +
-                avgSNR + "," +
-                stdDevSNR;
-        // String stats = provider + "," +
-                // Long.toString(timeEpoch) + "," +
-                // time + "," +
-                // Float.toString(cpuUsage) + "," +
-                // Double.toString(latitude) + "," +
-                // //Double.toString(latitudeAvg) + "," +
-                // Double.toString(longitude) + "," +
-                // //Double.toString(longitudeAvg) + "," +
-                // Float.toString(accuracy) + "," +
-                // //Double.toString(accuracyAvg) + "," +
-                // Integer.toString(time2firstFix) + "," +
-                // satPrn + "," +
-                // satSnr + "," +
-                // unusedSatPRNs + "," +
-                // unusedSatSNRs + "," +
-                // snrTimes + "," +
-                // minSNR + "," +
-                // maxSNR + "," +
-                // rangeSNR + "," +
-                // avgSNR + "," +
-                // stdDevSNR;
-//
+                Integer.toString(dataProcessor.satSNRsChanged ? 1 : 0);// + "," +
+//                unusedSatPRNs + "," +
+//                Integer.toString(dataProcessor.unusedSatPRNsChanged ? 1 : 0) + "," +
+//                unusedSatSNRs + "," +
+//                Integer.toString(dataProcessor.unusedSatSNRsChanged ? 1 : 0) + "," +
+//                snrTimes;
+//                snrTimes + "," +
+//                minSNR + "," +
+//                maxSNR + "," +
+//                rangeSNR + "," +
+//                avgSNR + "," +
+//                stdDevSNR;
+
         logger.log(stats, true);
 
         if (DEBUGGING) {
@@ -482,18 +386,20 @@ public class LocationModule extends Module implements LocationListener, GpsStatu
     private synchronized void setUnusedSatSnr(String unusedSNRs) {
         this.unusedSatSNRs = unusedSNRs;
     }
+
     private synchronized void setNoOfSatUsed(Integer noOfSatUsed) {
         this.noOfSatUsed = noOfSatUsed;
     }
 
-    private synchronized void  setNoOfSatUnused(Integer noOfSatUnused){
+    private synchronized void setNoOfSatUnused(Integer noOfSatUnused) {
         this.noOfSatUnused = noOfSatUnused;
     }
+
     private synchronized void setSnrTimes(String snrTimes) {
         this.snrTimes = snrTimes;
     }
 
-//    float min = 0, max = 0, range = 0, avg = 0, stdDev = 0
+    //    float min = 0, max = 0, range = 0, avg = 0, stdDev = 0
     private synchronized void setSnrMin(float min) {
         this.minSNR = min;
     }
@@ -580,10 +486,8 @@ public class LocationModule extends Module implements LocationListener, GpsStatu
 
         GpsStatus gpsStatus = null;
         String prns = "", snrs = "", unusedPRNs = "", unusedSNRs = "", snrTimes = "", timeSNRreading = "";
-        int time2FstFix = 0, noOfSatUsed=0,noOfSatUnused=0;
-        float usedUnusedSatRatio=0;
-        Boolean satellitesChanged =false, unusedSatellitesChanged =false, unusedSNRChanged =false;
-        //long timeSNRreading = 0;
+        int time2FstFix = 0, noOfSatUsed = 0, noOfSatUnused = 0;
+
 
         try {
             gpsStatus = locationManager.getGpsStatus(null);
@@ -600,8 +504,6 @@ public class LocationModule extends Module implements LocationListener, GpsStatu
             Iterable<GpsSatellite> satellites = gpsStatus.getSatellites();
             Iterator<GpsSatellite> sat = satellites.iterator();
             int i = 0;
-//            List<Integer> prns = new ArrayList<Integer>();
-//            List<Integer> snrs = new ArrayList<Integer>();
 
 
             while (sat.hasNext()) {
@@ -612,10 +514,8 @@ public class LocationModule extends Module implements LocationListener, GpsStatu
                     snrTimes += timeSNRreading + "/";
                     prns += satellite.getPrn() + "/";
                     snrs += satellite.getSnr() + "/";
-            noOfSatUsed++;
-                }
-                else
-                {
+                    noOfSatUsed++;
+                } else {
                     //timeSNRreading2 = new SimpleDateFormat("HH:mm:ss.SSS").format(new Date(System.currentTimeMillis()));
                     //snrTimes2 += timeSNRreading + "/";
                     unusedPRNs += satellite.getPrn() + "/";
@@ -630,107 +530,8 @@ public class LocationModule extends Module implements LocationListener, GpsStatu
                 setUnusedSatSnr(unusedSNRs);
                 setNoOfSatUsed(noOfSatUsed);
                 setNoOfSatUnused(noOfSatUnused);
-                //snrStat(prns+ "/" + unusedPRNs,snrs+ "/" + unusedSNRs);
             }
 
         }
     }
-
-    public void snrStat(String satSNRs, String satPRNs) {
-
-        float min = 0, max = 0, range = 0, avg = 0, stdDev = 0, sd = 0, dif = 0;
-        if (satSNRs!="" && satPRNs!="") {
-            String[] snrs = satSNRs.split("/");
-            Arrays.sort(snrs);
-            min = Float.parseFloat(snrs[0]);
-            max = Float.parseFloat(snrs[snrs.length - 1]);
-            range = max - min;
-
-            for (int i = 0; i < snrs.length; i++) {
-                avg += Float.valueOf(snrs[i]);
-            }
-            avg = avg / snrs.length;
-
-            for (int i = 0; i < snrs.length; i++) {
-                dif = avg - Float.parseFloat(snrs[i]);
-                dif = (float) Math.pow(dif, 2);
-                sd += dif;
-            }
-            stdDev = (float) Math.sqrt(sd / (snrs.length - 1));
-
-            setSnrMin(min);
-            setSnrMax(max);
-            setSnrRange(range);
-            setSnrAvg(avg);
-            setSnrStDev(stdDev);
-        }
-    }
-
-//    /**
-//     * Adapted From: http://stackoverflow.com/questions/22405403/android-cpu-cores-reported-in-proc-stat
-//     * @return
-//     */
-//    private static float getCpuUsage(int numCores){
-//        float[] coreLoads = new float[numCores];
-//        for(int i = 0; i < numCores; i++){ // Get load of CPU cores
-//            float load = getCoreLoad(i);
-//            if(!Float.isNaN(load)){ // If the CPU load gathered is a number
-//                coreLoads[i] = load;
-//            }
-//        }
-//        float usage = 0;
-//        for (float coreLoad : coreLoads) {
-//            usage += coreLoad;
-//        }
-//        return usage / coreLoads.length;
-//    }
-//    /**
-//     * Adapted From: http://stackoverflow.com/questions/22405403/android-cpu-cores-reported-in-proc-stat
-//     * @param core
-//     * @return
-//     */
-//    private static float getCoreLoad(int core){
-//        try{
-//            RandomAccessFile reader = new RandomAccessFile("/proc/stat", "r");
-//            for(int i = 0; i < (core + 1); i++){
-//                reader.readLine();
-//            }
-//            String load = reader.readLine();
-//            if(load.contains("cpu")){
-//                String[] toks = load.split(" ");
-//                long work1 = Long.parseLong(toks[1])+ Long.parseLong(toks[2]) + Long.parseLong(toks[3]);
-//                long total1 = Long.parseLong(toks[1])+ Long.parseLong(toks[2]) + Long.parseLong(toks[3]) +
-//                        Long.parseLong(toks[4]) + Long.parseLong(toks[5])
-//                        + Long.parseLong(toks[6]) + Long.parseLong(toks[7]) + Long.parseLong(toks[8]);
-//                try{
-//                    Thread.sleep(CORE_LOAD_WAIT_TIME);
-//                }catch(java.lang.InterruptedException ex){
-//                    Log.w(TAG,"Core Load Wait Time Interrupted");
-//                }
-//                reader.seek(0);
-//                for(int i = 0; i < (core + 1); i++){
-//                    reader.readLine();
-//                }
-//                load = reader.readLine();
-//                if(load.contains("cpu")){
-//                    reader.close();
-//                    toks = load.split(" ");
-//                    long work2 = Long.parseLong(toks[1])+ Long.parseLong(toks[2]) + Long.parseLong(toks[3]);
-//                    long total2 = Long.parseLong(toks[1])+ Long.parseLong(toks[2]) + Long.parseLong(toks[3]) +
-//                            Long.parseLong(toks[4]) + Long.parseLong(toks[5])
-//                            + Long.parseLong(toks[6]) + Long.parseLong(toks[7]) + Long.parseLong(toks[8]);
-//                    return (float)(work2 - work1) / ((total2 - total1));
-//                }else{
-//                    reader.close();
-//                    return 0;
-//                }
-//            }else{
-//                reader.close();
-//                return 0;
-//            }
-//        }catch(java.io.IOException ex){
-//            ex.printStackTrace();
-//        }
-//        return 0;
-//    }
 }

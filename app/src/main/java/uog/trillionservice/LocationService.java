@@ -57,12 +57,6 @@ public class LocationService extends Service implements IModuleSubscriber{
 
         super.onDestroy();
         endModule(locationModule);
-        //stopping the player when service is destroyed
-        //player.stop();
-
-/*        endModule(usageModule);
-        endModule(wiFiModule);
-        */
 
     }
     private void beginModule(Module module){
